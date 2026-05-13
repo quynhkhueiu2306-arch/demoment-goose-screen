@@ -4,112 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Moment 鹅鸭杀 - 现场大屏幕</title>
-    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
-    <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/2.4.0/cloudbase.full.js"></script>
+    
+<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@2.8.2/cloudbase.full.js"></script>
 
     <style>
-        /* ====== 欢快卡通派对视觉 ====== */
+        /* ====== 欢快大屏视觉视觉方案 ====== */
         :root {
-            --bg-color: #87CEEB; /* 晴空蓝 */
-            --panel-bg: #FFFFFF; /* 纯白面板 */
-            --text-main: #333333;
-            --accent-yellow: #FFC107;
+            --bg-main: #87CEEB; 
             --accent-orange: #FF7043;
             --alive-green: #8BC34A;
             --dead-gray: #B0BEC5;
-            --alert-red: #FF5252;
+            --panel-white: rgba(255, 255, 255, 0.95);
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            /* 欢乐的径向渐变背景 */
-            background-image: radial-gradient(circle at center, #E1F5FE 0%, #81D4FA 100%);
-            color: var(--text-main);
-            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-main) radial-gradient(circle at center, #E1F5FE 0%, #81D4FA 100%);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
             overflow: hidden;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            color: #333;
         }
 
-        /* 顶部大标题 */
+        /* 顶部标题 */
         .header-title {
             text-align: center;
             font-size: 4.5rem;
             font-weight: 900;
             color: #FFFFFF;
-            margin: 15px 0 5px 0;
+            margin: 20px 0;
             letter-spacing: 4px;
-            text-shadow: 
-                3px 3px 0 var(--accent-orange),
-                -3px -3px 0 var(--accent-orange),
-                3px -3px 0 var(--accent-orange),
-                -3px 3px 0 var(--accent-orange),
-                6px 6px 0px rgba(0,0,0,0.2);
-            font-family: 'ZCOOL KuaiLe', 'Nunito', sans-serif;
+            text-shadow: 4px 4px 0 var(--accent-orange), 8px 8px 0px rgba(0,0,0,0.1);
         }
 
-        /* 核心布局 */
+        /* 主布局 */
         #dashboard {
             display: grid;
-            grid-template-columns: 2.5fr 4fr 2.5fr; 
+            grid-template-columns: 2.8fr 4fr 2.8fr; 
             flex-grow: 1;
             gap: 25px;
-            padding: 15px 30px 30px 30px;
+            padding: 0 40px 40px 40px;
             box-sizing: border-box;
         }
 
-        /* 欢乐的白色圆角面板 */
         .panel {
-            background: rgba(255, 255, 255, 0.95);
-            border: 4px solid #FFFFFF;
-            border-radius: 30px;
+            background: var(--panel-white);
+            border-radius: 35px;
             padding: 25px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border: 4px solid #FFF;
         }
 
-        .panel-title {
+        .panel-header {
+            text-align: center;
             font-size: 1.8rem;
             font-weight: 900;
             color: var(--accent-orange);
-            text-align: center;
             margin-bottom: 20px;
-            background: #FFF3E0;
-            border-radius: 20px;
-            padding: 10px 0;
-            border: 2px dashed #FFCC80;
+            padding-bottom: 10px;
+            border-bottom: 3px dashed #FFCC80;
         }
 
-        /* ====== 左侧：存活状态区 ====== */
+        /* 玩家格子 */
         .player-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            flex-grow: 1;
-            align-content: start; /* 让格子靠上对齐，人数少时更美观 */
         }
 
         .player-cell {
+            aspect-ratio: 1/1;
             background: #F5F5F5;
-            border: 3px solid #E0E0E0;
-            border-radius: 16px;
+            border: 4px solid #DDD;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 900;
-            color: #757575;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 0 #E0E0E0;
-            aspect-ratio: 4/3; /* 保持格子比例 */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* 存活状态：绿色生机 */
         .player-cell.alive {
             background: #F1F8E9;
             border-color: var(--alive-green);
@@ -117,109 +97,59 @@
             box-shadow: 0 6px 0 #689F38;
         }
 
-        /* 淘汰状态：变灰，幽灵感 */
         .player-cell.dead {
             background: #ECEFF1;
             border-color: var(--dead-gray);
             color: var(--dead-gray);
-            box-shadow: 0 2px 0 #CFD8DC;
-            transform: translateY(4px);
+            transform: scale(0.9) translateY(5px);
             opacity: 0.6;
-        }
-        .player-cell.dead::after {
-            content: "👻";
-            position: absolute;
-            font-size: 1.8rem;
-            bottom: -10px;
-            right: -5px;
+            box-shadow: none;
         }
 
-        /* ====== 中间：核心雷达与倒计时 ====== */
+        /* 中间核心区 */
         .center-panel {
-            align-items: center;
             justify-content: center;
+            align-items: center;
             background: #FFFDE7;
-            border-color: var(--accent-yellow);
-            border-width: 6px;
+            border: 6px solid #FFC107;
         }
-        
-        .status-text {
+
+        #main-status {
             font-size: 3.5rem;
             font-weight: 900;
-            margin-bottom: 20px;
             color: var(--accent-orange);
             background: #FFF;
-            padding: 15px 40px;
-            border-radius: 50px;
-            box-shadow: 0 8px 0 var(--accent-yellow);
-            transition: all 0.3s;
+            padding: 15px 50px;
+            border-radius: 60px;
+            box-shadow: 0 8px 0 #FFC107;
+            margin-bottom: 30px;
             text-align: center;
         }
 
-        .timer {
-            font-size: 9rem;
+        #main-timer {
+            font-size: 11rem;
             font-weight: 900;
-            color: var(--text-main);
-            text-shadow: 4px 4px 0px #EEEEEE;
+            color: #333;
+            text-shadow: 4px 4px 0 #EEE;
         }
 
-        /* 警报状态：红框闪烁 */
-        .alert-mode {
-            animation: bg-alert-flash 0.8s infinite alternate;
-            border-color: var(--alert-red);
-        }
-        .alert-mode .status-text {
-            color: #FFF;
-            background: var(--alert-red);
-            box-shadow: 0 8px 0 #D32F2F;
-        }
-        @keyframes bg-alert-flash {
-            from { background: #FFEBEE; }
-            to { background: #FFCDD2; }
-        }
-
-        /* ====== 右侧：广播大屏 ====== */
+        /* 右侧日志区 */
         .terminal {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #546E7A;
             flex-grow: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; 
-            padding: 10px;
-            background: #F4F6F8;
-            border-radius: 16px;
-            border: inset 3px #E2E8F0;
-        }
-        .log-entry { 
-            margin-bottom: 12px; 
-            padding: 12px 15px; 
-            background: #FFFFFF;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            animation: popIn 0.3s ease-out;
-        }
-        .log-entry.death { 
-            background: var(--alert-red); 
-            color: #FFFFFF; 
-            font-weight: 900;
-        }
-        .log-entry .time { 
-            color: var(--accent-orange); 
-            margin-right: 8px; 
-            font-size: 1rem; 
-        }
-        .log-entry.death .time {
-            color: #FFCDD2;
+            background: #263238;
+            color: #81C784;
+            padding: 20px;
+            border-radius: 20px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1rem;
+            overflow-y: hidden;
+            line-height: 1.6;
         }
 
-        @keyframes popIn {
-            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        .log-item { margin-bottom: 10px; border-left: 4px solid #4CAF50; padding-left: 10px; animation: slideIn 0.3s ease; }
+        .log-item.err { border-left-color: #FF5252; color: #FF8A80; }
 
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
@@ -228,146 +158,144 @@
 
     <div id="dashboard">
         <div class="panel">
-            <div class="panel-title">鹅鸭阵营状态</div>
-            <div class="player-grid" id="player-grid">
-                </div>
+            <div class="panel-header">存活状态监测</div>
+            <div id="player-grid" class="player-grid"></div>
         </div>
 
-        <div class="panel center-panel" id="center-core">
-            <div class="status-text" id="main-status">等待数据接入...</div>
-            <div class="timer" id="main-timer">00:00</div>
+        <div class="panel center-panel">
+            <div id="main-status">系统初始化...</div>
+            <div id="main-timer">--:--</div>
         </div>
 
         <div class="panel">
-            <div class="panel-title">园区广播站</div>
-            <div class="terminal" id="terminal-logs">
-                <div class="log-entry"><span class="time">📢</span> 欢迎来到 De Moment，等待系统初始化...</div>
+            <div class="panel-header">现场广播</div>
+            <div id="terminal-logs" class="terminal">
+                <div class="log-item">正在接入云端环境...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. 初始化云开发环境 (务必替换为您自己的 ID !!!)
-        // ==========================================
-        const app = cloudbase.init({
-            env: 'cloud1-3gb8lxcqa6cdfe36' 
-        });
+        // 配置环境 ID 和 区域（上海）
+        const ENV_ID = 'cloud1-3gb8lxcqa6cdfe36';
+        let app = null;
+        let timerInterval = null;
 
-        const playerGrid = document.getElementById('player-grid');
-        const mainStatus = document.getElementById('main-status');
-        const centerCore = document.getElementById('center-core');
-        const mainTimer = document.getElementById('main-timer');
-        const terminalLogs = document.getElementById('terminal-logs');
-        let globalTimerInterval = null;
-
-        // 写入广播日志函数
-        function addLog(message, isDeath = false) {
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-            const logDiv = document.createElement('div');
-            logDiv.className = `log-entry ${isDeath ? 'death' : ''}`;
-            const icon = isDeath ? '💀' : '🔔';
-            logDiv.innerHTML = `<span class="time">${icon} [${timeStr}]</span> ${message}`;
-            terminalLogs.appendChild(logDiv);
-            
-            // 保持日志不超过 10 条，避免溢出屏幕
-            if (terminalLogs.children.length > 10) {
-                terminalLogs.removeChild(terminalLogs.firstChild);
+        // 1. 启动检查
+        function bootstrap() {
+            const sdk = window.tcb || window.cloudbase;
+            if (!sdk) {
+                setTimeout(bootstrap, 500);
+                return;
+            }
+            try {
+                // 初始化，必须指定上海区域
+                app = sdk.init({ 
+                    env: ENV_ID,
+                    region: 'ap-shanghai' 
+                });
+                startApp();
+            } catch (err) {
+                addLog("初始化异常: " + err.message, true);
             }
         }
 
-        // ==========================================
-        // 2. 匿名登录并开启实时监听
-        // ==========================================
-        const auth = app.auth();
-        auth.anonymousAuthProvider().signIn().then(() => {
-            addLog("大屏幕连接成功！随时可以开始。");
-            const db = app.database();
+        // 2. 核心逻辑
+        async function startApp() {
+            try {
+                // 开启本地缓存，防止刷新网页就掉线
+                const auth = app.auth({ persistence: 'local' });
+                
+                // 【关键修复】先检查是不是已经连上了，没连上才去登录
+                const loginState = await auth.getLoginState();
+                if (!loginState) {
+                    await auth.anonymousAuthProvider().signIn();
+                }
+                
+                addLog("✅ 大屏幕成功连接云端服务器");
+                document.getElementById('main-status').innerText = "等待数据同步...";
 
-            // --- 监听 1：全局游戏状态 (人数、倒计时、出局名单、模式) ---
-            db.collection('game_state').limit(1).watch({
-                onChange: function(snapshot) {
-                    if (snapshot.docs.length === 0) return;
-                    const state = snapshot.docs[0];
+                const db = app.database();
 
-                    // 【核心功能】动态同步玩家总人数
-                    const currentTotal = state.total_players || 15; 
-                    if (playerGrid.children.length !== currentTotal) {
-                        playerGrid.innerHTML = ''; // 清空旧格子
-                        for (let i = 1; i <= currentTotal; i++) {
-                            const cell = document.createElement('div');
-                            cell.className = 'player-cell alive';
-                            cell.id = `player-${i}`;
-                            cell.innerText = i < 10 ? `0${i}` : i;
-                            playerGrid.appendChild(cell);
+                // 监听游戏状态
+                db.collection('game_state').limit(1).watch({
+                    onChange: (snapshot) => {
+                        if (snapshot.docs.length > 0) {
+                            renderGame(snapshot.docs[0]);
                         }
-                    }
+                    },
+                    onError: (err) => addLog("数据流异常: " + err.code, true)
+                });
 
-                    // 状态与模式切换
-                    if (state.status === 0) {
-                        mainStatus.innerText = "自由探索中";
-                        centerCore.classList.remove('alert-mode');
-                    } else if (state.status === 1) {
-                        mainStatus.innerText = "🚨 紧急会议 🚨";
-                        centerCore.classList.add('alert-mode');
-                    } else if (state.status === 3) {
-                        mainStatus.innerText = "🗳️ 投票进行中";
-                        centerCore.classList.remove('alert-mode');
-                    }
+                // 监听死亡记录（可选）
+                let isFirstLoad = true;
+                db.collection('death_records').orderBy('timestamp', 'desc').limit(1).watch({
+                    onChange: (snapshot) => {
+                        if (isFirstLoad) { isFirstLoad = false; return; }
+                        if (snapshot.docs.length > 0) {
+                            const d = snapshot.docs[0];
+                            addLog(`💀 警报！玩家 [${d.victim}] 变成幽灵了！`);
+                        }
+                    },
+                    onError: (err) => {}
+                });
 
-                    // 全局大倒计时同步
-                    clearInterval(globalTimerInterval);
-                    if (state.global_timer_end && state.global_timer_end > Date.now()) {
-                        globalTimerInterval = setInterval(() => {
-                            let left = Math.floor((state.global_timer_end - Date.now()) / 1000);
-                            if (left > 0) {
-                                let m = Math.floor(left / 60).toString().padStart(2, '0');
-                                let s = (left % 60).toString().padStart(2, '0');
-                                mainTimer.innerText = `${m}:${s}`;
-                            } else {
-                                clearInterval(globalTimerInterval);
-                                mainTimer.innerText = "00:00";
-                            }
-                        }, 1000);
-                    } else {
-                        mainTimer.innerText = state.global_timer_end ? "00:00" : "--:--";
-                    }
+            } catch (err) {
+                addLog("❌ 登录失败: " + (err.code || err.message), true);
+            }
+        }
+        // 3. 渲染界面
+        function renderGame(data) {
+            const statusNames = ["自由探索", "紧急会议", "任务时间", "投票进行中"];
+            document.getElementById('main-status').innerText = statusNames[data.status] || "游戏进行中";
 
-                    // 左侧淘汰名单实时更新 (变小幽灵)
-                    for(let i=1; i<=currentTotal; i++) {
-                        let cell = document.getElementById(`player-${i}`);
-                        if(cell) cell.className = 'player-cell alive';
-                    }
-                    if (state.eliminated_players) {
-                        let deadArr = String(state.eliminated_players).replace(/，/g, ',').split(',');
-                        deadArr.forEach(num => {
-                            let cell = document.getElementById(`player-${parseInt(num)}`);
-                            if(cell) cell.className = 'player-cell dead';
-                        });
-                    }
-                },
-                onError: function(err) { addLog("网络波动，正在重新连接广播站..."); }
-            });
+            const grid = document.getElementById('player-grid');
+            const total = data.total_players || 15;
+            // 处理死亡名单字符串，兼容中英文逗号
+            const deadList = data.eliminated_players ? String(data.eliminated_players).replace(/，/g, ',').split(',') : [];
+            
+            grid.innerHTML = '';
+            for (let i = 1; i <= total; i++) {
+                const cell = document.createElement('div');
+                const isDead = deadList.includes(String(i));
+                cell.className = `player-cell ${isDead ? 'dead' : 'alive'}`;
+                cell.innerText = i < 10 ? '0' + i : i;
+                grid.appendChild(cell);
+            }
 
-            // --- 监听 2：死亡档案通报 (右侧弹窗) ---
-            let isFirstLoad = true;
-            db.collection('death_records').orderBy('timestamp', 'desc').limit(1).watch({
-                onChange: function(snapshot) {
-                    if (isFirstLoad) { isFirstLoad = false; return; } // 首次加载不播报历史数据
-                    
-                    if (snapshot.docs.length > 0) {
-                        const death = snapshot.docs[0];
-                        addLog(`糟糕！[${death.victim}]号 玩家变成幽灵了！`, true);
-                    }
-                },
-                onError: function(err) {}
-            });
+            handleTimer(data.global_timer_end);
+        }
 
-        }).catch(err => {
-            addLog(`登录失败，请检查微信云开发匿名登录是否开启: ${err.message}`);
-        });
+        // 4. 计时器
+        function handleTimer(endTime) {
+            clearInterval(timerInterval);
+            if (!endTime || endTime < Date.now()) {
+                document.getElementById('main-timer').innerText = "00:00";
+                return;
+            }
+            timerInterval = setInterval(() => {
+                const diff = Math.floor((endTime - Date.now()) / 1000);
+                if (diff <= 0) {
+                    document.getElementById('main-timer').innerText = "00:00";
+                    clearInterval(timerInterval);
+                } else {
+                    const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                    const s = (diff % 60).toString().padStart(2, '0');
+                    document.getElementById('main-timer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
 
+        function addLog(msg, isErr = false) {
+            const logs = document.getElementById('terminal-logs');
+            const item = document.createElement('div');
+            item.className = `log-item ${isErr ? 'err' : ''}`;
+            item.innerHTML = `> [${new Date().toLocaleTimeString('zh-CN', {hour12:false})}] ${msg}`;
+            logs.appendChild(item);
+            if (logs.children.length > 12) logs.removeChild(logs.firstChild);
+        }
+
+        document.addEventListener('DOMContentLoaded', bootstrap);
     </script>
 </body>
 </html>
